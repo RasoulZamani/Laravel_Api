@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\ApiLoginRequest;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Traits\ApiResponses;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ApiLoginRequest;
 
 class AuthController extends Controller
 { 
