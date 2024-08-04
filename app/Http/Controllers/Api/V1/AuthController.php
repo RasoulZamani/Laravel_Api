@@ -6,7 +6,9 @@ use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ApiLoginRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Api\V1\Users\ApiLoginRequest;
+use App\Models\User;
 
 class AuthController extends Controller
 { 
@@ -15,9 +17,31 @@ class AuthController extends Controller
     public function home():JsonResponse{
         return $this->ok("welcome home");
     }
+
     // login 
     public function login(ApiLoginRequest $request):JsonResponse {
-        return $this->ok("$request->email was login");
+        $request->validated($request->all());
+
+        if (!Auth::attempt($request->only('email','password'))) {
+            return $this->error($message="Invalid credentials", $statusCode=401);
+        }
+
+        $user = User::where('email',$request->email)->first();
+
+        return $this->ok($message="Authenticated", $data=[
+            'token' => $user->createToken(
+                'API token for' . $user->email,
+                ['*'], 
+                now()->addMonth()
+                )->plainTextToken
+        ]);
+        
+    }
+
+    // Log out
+    public function logout(Request $request) {
+        $request->user()->currentAccessToken()->delete();
+        return $this->ok("You logged out! See you soon:)");
     }
 
     // Register
