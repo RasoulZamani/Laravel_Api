@@ -4,33 +4,37 @@ namespace App\Http\Filters\V1;
 
 use App\Http\Filters\V1\QueryFilterBase;
 
-class TicketFilter extends QueryFilterBase {
+class UserFilter extends QueryFilterBase {
     
     protected $sortable = [
-        'title',
-        'status',
+        'name',
+        'email',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
     ];
-
     // include relations
     public function include($relation) {
         return $this->builder->with($relation);
     }
 
-    // filter tickets by status
-    public function status($value) {
-        return $this->builder->whereIn('status',explode(',', $value));
+    // filter users by id
+    public function id($value) {
+        return $this->builder->whereIn('id',explode(',', $value));
     }
 
-    // filter tickets by title 
-    public function title($value) {
+    // filter users by  email
+    public function email($value) {
         $likeStr = str_replace('*', '%', $value);
-        // return $this->builder->where('title',$value);
-        return $this->builder->where('title','like', $likeStr);
+        return $this->builder->where('email','like', $likeStr);
     }
 
-    // filter tickets by created_at
+    // filter users by name
+    public function name($value) {
+        $likeStr = str_replace('*', '%', $value);
+        return $this->builder->where('name','like', $likeStr);
+    }
+
+    // filter users by created_at
     public function createdAt($value) {
         $dates = explode(',', $value);
         if (count($dates)>1) { 
@@ -40,7 +44,7 @@ class TicketFilter extends QueryFilterBase {
         return $this->builder->whereDate('created_at',$value);
     }
 
-    // filter tickets by updated_at
+    // filter users by updated_at
     public function updatedAt($value) {
         $dates = explode(',', $value);
         if (count($dates)>1) { 
