@@ -19,13 +19,19 @@ use App\Http\Controllers\Api\V1\UserTicketsController;
 */
 Route::get('/',[AuthController::class, 'home']);
 
+
 Route::post('/login',[AuthController::class, 'login']);
 Route::post('/register',[AuthController::class, 'register']);
 
-Route::middleware('auth:sanctum')->post('/logout',[AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout',[AuthController::class, 'logout']);
 
-Route::middleware('auth:sanctum')->apiResource('tickets', TicketController::class);
-Route::middleware('auth:sanctum')->apiResource('users', UserController::class);
-Route::middleware('auth:sanctum')->apiResource('users.tickets', UserTicketsController::class);
+    Route::apiResource('tickets', TicketController::class)->except('update');
+    Route::put('tickets/{ticket}', [TicketController::class, 'replace']);
+    Route::patch('tickets/{ticket}', [TicketController::class, 'update']);
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('users.tickets', UserTicketsController::class);
+});
+
 
 

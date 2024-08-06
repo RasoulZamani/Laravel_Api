@@ -3,15 +3,16 @@
 namespace App\Http\Requests\Api\V1\Tickets;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Api\V1\Tickets\TicketRequestBase;
 
-class UpdateTicketRequest extends FormRequest
+class UpdateTicketRequest extends TicketRequestBase
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,13 @@ class UpdateTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+        $rules = [
+            'data.attributes.title' => ['sometimes','string'],
+            'data.attributes.description' => ['sometimes','string'],
+            'data.attributes.status' => ['sometimes','string', 'in:pending,answered,canceled'],
+            'data.relationships.author.id' => ['sometimes','integer']
         ];
+        
+        return $rules;
     }
 }

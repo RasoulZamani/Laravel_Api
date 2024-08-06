@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponses;
 
 // base class for api controllers
 class ApiBaseController extends Controller
 {
+    use ApiResponses;
     /**
      * Check if this queryValue exist in the query params with this queryKey.
      */

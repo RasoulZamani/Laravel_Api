@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\User;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use App\Http\Filters\V1\TicketFilter;
 use App\Http\Resources\V1\TicketResource;
 use App\Http\Controllers\Api\V1\ApiBaseController;
 use App\Http\Requests\Api\V1\Tickets\StoreTicketRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\Api\V1\Tickets\UpdateTicketRequest;
+use App\Http\Requests\Api\V1\Tickets\ReplaceTicketRequest;
 
 class TicketController extends ApiBaseController
 {
@@ -30,7 +33,27 @@ class TicketController extends ApiBaseController
      */
     public function store(StoreTicketRequest $request)
     {
-        //
+        // check user_id existence in users table
+        try {
+            $user = User::findOrFail($request->input('data.relationships.author.id'));
+        } catch (ModelNotFoundException $exception) {
+            return $this->ok("This user dose not exist in db.", [
+                "error" => "provided user_id as author, does not exist."
+            ]);
+             // Notice that for security issue, we return status code of 200 and error will be shown in data payload.
+            // in order to hackers can not find vulnerability in site with non 200 responses
+        }
+
+        // save in db
+        // $createdTicket = Ticket::create([
+        //     'title' => $request->input('data.attributes.title'),
+        //     'description' => $request->input('data.attributes.description'),
+        //     'status' => $request->input('data.attributes.status'),
+        //     'user_id' => $request->input('data.relationships.author.id')
+
+        // ]);
+        $createdTicket = Ticket::create($request->mappedAttributes());
+        return new TicketResource($createdTicket);
     }
 
     /**
@@ -49,7 +72,25 @@ class TicketController extends ApiBaseController
      */
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        //
+        //PATCH 
+        $ticket->update($request->mappedAttributes());
+        return new TicketResource($ticket);
+    }
+
+    /**
+     * Update all attributes of the specified resource in storage.
+     */
+    public function replace(ReplaceTicketRequest $request, Ticket $ticket)
+    {
+        //PUT 
+        // $ticket->update([
+        //     'title' => $request->input('data.attributes.title'),
+        //     'description' => $request->input('data.attributes.description'),
+        //     'status' => $request->input('data.attributes.status'),
+        //     'user_id' => $request->input('data.relationships.author.id')
+        // ]);
+        $ticket->update($request->mappedAttributes());
+        return new TicketResource($ticket);
     }
 
     /**
@@ -57,6 +98,10 @@ class TicketController extends ApiBaseController
      */
     public function destroy(Ticket $ticket)
     {
-        //
+        // if you want you can first find ticket by ticket_id and
+        // send manual error for not found tickets for more security(because model-bind returns more data)
+        // however i prefer this simple aproach:
+        $ticket->delete();
+        return $this->ok("The ticket deleted successfully.");
     }
 }
