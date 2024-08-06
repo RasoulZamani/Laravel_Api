@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use App\Http\Filters\V1\TicketFilter;
 use App\Http\Resources\V1\TicketResource;
 use App\Http\Controllers\Api\V1\ApiBaseController;
 use App\Http\Requests\Api\V1\Tickets\StoreTicketRequest;
@@ -14,13 +15,14 @@ class TicketController extends ApiBaseController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(TicketFilter $filters)
     {   
-        if ($this->checkQueryParam('include','user')) {
-            return TicketResource::collection(Ticket::with('user')->paginate());
-        }
+        return TicketResource::collection(Ticket::filter($filters)->paginate());
+        // if ($this->include('user')) {
+        //     return TicketResource::collection(Ticket::with('user')->paginate());
+        // }
 
-        return TicketResource::collection(Ticket::all());
+        // return TicketResource::collection(Ticket::paginate());
     }
 
     /**
@@ -36,7 +38,7 @@ class TicketController extends ApiBaseController
      */
     public function show(Ticket $ticket)
     {
-        if ($this->checkQueryParam('include','user')) {
+        if ($this->include('user')) {
             return new TicketResource($ticket->load('user'));
         }
         return new TicketResource($ticket);

@@ -14,7 +14,7 @@ class UserController extends ApiBaseController
      * Display a listing of the resource.
      */
     public function index()
-    {   if ($this->checkQueryParam('include','tickets')) {
+    {   if ($this->include('tickets')) {
         return UserResource::collection(User::with('tickets')->paginate());
     }
         return UserResource::collection(User::paginate());
@@ -32,7 +32,7 @@ class UserController extends ApiBaseController
      * Display the specified resource.
      */
     public function show(User $user)
-    {   if ($this->checkQueryParam('include','tickets')) {
+    {   if ($this->include('tickets')) {
             return new UserResource($user->load('tickets'));
         }
         return new UserResource($user);
