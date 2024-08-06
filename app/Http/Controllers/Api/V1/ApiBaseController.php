@@ -10,6 +10,9 @@ use App\Traits\ApiResponses;
 class ApiBaseController extends Controller
 {
     use ApiResponses;
+
+    protected $policyClass; // will write in children
+
     /**
      * Check if this queryValue exist in the query params with this queryKey.
      */
@@ -32,5 +35,12 @@ class ApiBaseController extends Controller
 
         return $this->checkQueryParam("include", $relation);
 
+    }
+
+    /**
+     * check ability authorization
+     */
+    public function isAble(string $ability, $targetModel) {
+        return $this->authorize($ability, [$targetModel, $this->policyClass]);
     }
 }
